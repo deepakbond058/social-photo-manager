@@ -1,0 +1,52 @@
+<!-- public/redirect.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+    import { getFirestore, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+
+ 
+    const firebaseConfig = {
+      apiKey: "AIzaSyCeRnLexFK7GWTMwQaZLRYsB6fkwtLZWd0",
+      authDomain: "social-photo-manager-9d6f7.firebaseapp.com",
+      projectId: "social-photo-manager-9d6f7",
+      storageBucket: "social-photo-manager-9d6f7.appspot.com",
+      messagingSenderId: "22453449727",
+      appId: "1:22453449727:web:5955752b3ca2ebeadaedca"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageUrl = urlParams.get('url');
+    const imageId = urlParams.get('id');
+
+    if (imageId && imageUrl) {
+      const imageRef = doc(db, 'images', imageId);
+      getDoc(imageRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          const currentViews = docSnap.data().views || 0;
+          updateDoc(imageRef, { views: currentViews + 1 }).then(() => {
+            window.location.href = imageUrl;
+          });
+        } else {
+          document.body.innerHTML = 'Invalid image ID';
+        }
+      }).catch((error) => {
+        console.error('Error incrementing view count:', error);
+        window.location.href = imageUrl; // Redirect even if there is an error
+      });
+    } else {
+      document.body.innerHTML = 'Invalid link';
+    }
+  </script>
+</head>
+<body>
+</body>
+</html>
